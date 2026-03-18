@@ -18,7 +18,7 @@
 | [`cluster-fast-slow-rank-detector`](./cluster-fast-slow-rank-detector/SKILL.md) | 面向 Ascend 集群 Profiling 的快慢卡诊断，区分 Host 下发慢、计算慢、通信慢等瓶颈类型 | 集群 profiling 根目录、慢卡/快卡分析诉求 | `msprof-analyze-advisor`、Python、`pandas` |
 | [`mindstudio_profiler_data_check`](./mindstudio_profiler_data_check/SKILL.md) | 对 MindStudio profiler / msprof 采集结果做前置体检，判断是否可进入后续分析 | profiler 结果目录 | `msprof`，离线解析时依赖 `torch_npu` 或 `mindspore` |
 | [`op-mfu-calculator`](./op-mfu-calculator/SKILL.md) | 计算 matmul / GEMM / FlashAttention 等算子的 MFU，并给出推导过程 | 算子类型、shape、执行时间、峰值算力 | 无额外脚本依赖 |
-| [`github-raw-fetch`](./github-raw-fetch/SKILL.md) | 将 GitHub 文件页链接自动转换为 raw 链接并抓取文件原文 | GitHub `blob` 或 raw 文件链接 | 支持网络抓取的 Agent / 工具 |
+| [`github-raw-fetch`](./github-raw-fetch/SKILL.md) | 读取 GitHub 仓库中的源码、配置、README、Markdown 与 docs；普通文件自动将 `blob` 链接转换为 raw，docs 场景会先读取同仓库同 `ref` 的 `agent_router.md` 再定位真实路径 | GitHub `blob` / raw 文件链接，或“读取某仓库某篇 docs”这类请求 | 支持网络抓取的 Agent / 工具，推荐 `curl` / `curl.exe` |
 
 ## 目录结构
 
@@ -65,6 +65,13 @@
 - “分析这个 Ascend 集群 profiling 目录里的快慢卡问题”
 - “根据这个 matmul 的 shape 和耗时计算 MFU”
 - “把这个 GitHub 文件页面链接转成 raw content 给我”
+- “读取这个仓库里关于 X 的 docs，先按 `agent_router.md` 找真实路径”
+
+对于 `github-raw-fetch`：
+
+- 如果目标是普通文本文件，按 `github.com/<owner>/<repo>/blob/<ref>/...` 到 `raw.githubusercontent.com/<owner>/<repo>/<ref>/...` 的规则直接转换并抓取
+- 如果目标属于 docs、FAQ、指南、Markdown 文档体系，必须先读取同仓库同 `ref` 的 `agent_router.md`，再根据其中的目录映射、别名或入口规则推导真实路径
+- 抓取 raw 内容时优先使用 `curl`；在 PowerShell 环境中优先使用 `curl.exe -L`
 
 ## Skill 设计约定
 
